@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { createSession } from "./actions";
+import { createSession, deleteSession } from "./actions";
 import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +49,14 @@ export default async function SessionsPage() {
             className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
             required
           />
+          <input
+            type="number"
+            name="durationHours"
+            step="0.5"
+            min="0"
+            placeholder="Duration (hrs)"
+            className="h-9 w-32 rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
+          />
           <Button type="submit" size="sm" className="whitespace-nowrap">
             New Session
           </Button>
@@ -61,8 +69,9 @@ export default async function SessionsPage() {
             <TableRow>
               <TableHead className="w-[120px]">Date</TableHead>
               <TableHead>Location</TableHead>
+              <TableHead className="w-[120px]">Duration (hrs)</TableHead>
               <TableHead className="w-[120px]">Status</TableHead>
-              <TableHead className="w-[120px] text-right">Actions</TableHead>
+              <TableHead className="w-[200px] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -73,13 +82,35 @@ export default async function SessionsPage() {
                     {new Date(session.date).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-sm">{session.location}</TableCell>
+                  <TableCell className="text-sm">
+                    {(() => {
+                      const raw = (session.duration_hours ??
+                        null) as string | null;
+                      if (!raw) return "—";
+                      const num = Number(raw);
+                      if (Number.isNaN(num)) return "—";
+                      return `${num.toFixed(1)} h`;
+                    })()}
+                  </TableCell>
                   <TableCell className="text-xs capitalize">
                     {session.status}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="flex justify-end gap-2 text-right">
                     <Button asChild size="sm" variant="outline">
                       <Link href={`/sessions/${session.id}`}>Open</Link>
                     </Button>
+                    {session.status === "active" && (
+                      <form action={deleteSession}>
+                        <input
+                          type="hidden"
+                          name="sessionId"
+                          value={session.id as string}
+                        />
+                        <Button type="submit" size="sm" variant="outline">
+                          Delete
+                        </Button>
+                      </form>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

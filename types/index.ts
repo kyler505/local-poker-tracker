@@ -15,6 +15,8 @@ export interface Session {
   date: string; // ISO date (YYYY-MM-DD)
   location: string;
   status: SessionStatus;
+   // duration_hours is optional and stored as a numeric in the DB, surfaced as string | null
+  duration_hours?: string | null;
   created_at: string; // ISO timestamp
 }
 
@@ -65,6 +67,7 @@ export interface Database {
           date: string;
           location: string;
           status?: SessionStatus;
+          duration_hours?: string | null;
           created_at?: string;
         };
         Update: {
@@ -72,6 +75,7 @@ export interface Database {
           date?: string;
           location?: string;
           status?: SessionStatus;
+          duration_hours?: string | null;
           created_at?: string;
         };
         Relationships: [];

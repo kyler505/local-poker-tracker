@@ -45,9 +45,20 @@ export async function createSession(formData: FormData) {
     throw new Error("Date and location are required.");
   }
 
+  const rawDuration = formData.get("durationHours")?.toString().trim();
+  let duration_hours: string | null = null;
+
+  if (rawDuration) {
+    const num = Number(rawDuration);
+    if (Number.isNaN(num) || num < 0) {
+      throw new Error("Duration must be a non-negative number of hours.");
+    }
+    duration_hours = num.toString();
+  }
+
   const { error } = await supabase
     .from("sessions")
-    .insert({ date, location, status: "active" });
+    .insert({ date, location, status: "active", duration_hours });
 
   if (error) throw error;
 
@@ -171,6 +182,98 @@ export async function completeSession(formData: FormData) {
   const { error } = await supabase
     .from("sessions")
     .update({ status: "completed" })
+    .eq("id", sessionId);
+
+  if (error) throw error;
+
+  revalidatePath(`/sessions/${sessionId}`);
+  revalidatePath("/sessions");
+  revalidatePath("/");
+}
+
+export async function reopenSession(formData: FormData) {
+  const sessionId = formData.get("sessionId")?.toString();
+
+  if (!sessionId) {
+    throw new Error("Session id is required.");
+  }
+
+  const { error } = await supabase
+    .from("sessions")
+    .update({ status: "active" })
+    .eq("id", sessionId);
+
+  if (error) throw error;
+
+  revalidatePath(`/sessions/${sessionId}`);
+  revalidatePath("/sessions");
+  revalidatePath("/");
+}
+
+export async function removePlayerFromSession(formData: FormData) {
+  const sessionId = formData.get("sessionId")?.toString();
+  const playerId = formData.get("playerId")?.toString();
+
+  if (!sessionId || !playerId) {
+    throw new Error("Session and player are required.");
+  }
+
+  await ensureSessionIsActive(sessionId);
+
+  const { error } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("session_id", sessionId)
+    .eq("player_id", playerId);
+
+  if (error) throw error;
+
+  revalidatePath(`/sessions/${sessionId}`);
+  revalidatePath("/sessions");
+}
+
+export async function deleteSession(formData: FormData) {
+  const sessionId = formData.get("sessionId")?.toString();
+
+  if (!sessionId) {
+    throw new Error("Session id is required.");
+  }
+
+  // Only allow deleting active sessions to avoid wiping history accidentally.
+  const { data, error } = await supabase
+    .from("sessions")
+    .select("status")
+    .eq("id", sessionId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error("Session not found.");
+  if (data.status !== "active") {
+    throw new Error("Only active sessions can be deleted.");
+  }
+
+  const { error: deleteError } = await supabase
+    .from("sessions")
+    .delete()
+    .eq("id", sessionId);
+
+  if (deleteError) throw deleteError;
+
+  revalidatePath("/sessions");
+  revalidatePath("/");
+}
+
+export async function updateSessionLocation(formData: FormData) {
+  const sessionId = formData.get("sessionId")?.toString();
+  const location = formData.get("location")?.toString().trim();
+
+  if (!sessionId || !location) {
+    throw new Error("Session id and location are required.");
+  }
+
+  const { error } = await supabase
+    .from("sessions")
+    .update({ location })
     .eq("id", sessionId);
 
   if (error) throw error;

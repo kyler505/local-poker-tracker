@@ -12,7 +12,11 @@ import {
   addBuyIn,
   addPlayerToSession,
   completeSession,
+  deleteSession,
+  removePlayerFromSession,
+  reopenSession,
   setCashOut,
+  updateSessionLocation,
 } from "../actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,6 +74,30 @@ export default async function SessionPage({ params }: SessionPageProps) {
 
   const isCompleted = session.status === "completed";
 
+  const sessionTotals = transactions.reduce(
+    (acc, tx) => {
+      const buyIn = Number(tx.buy_in_amount ?? 0);
+      const cashOut = Number(tx.cash_out_amount ?? 0);
+      acc.totalBuyIns += buyIn;
+      acc.totalCashOuts += cashOut;
+      return acc;
+    },
+    { totalBuyIns: 0, totalCashOuts: 0 }
+  );
+
+  const tableProfit = sessionTotals.totalCashOuts - sessionTotals.totalBuyIns;
+
+  const durationHours = (() => {
+    const raw = (session as SessionRecord).duration_hours as string | null;
+    if (!raw) return null;
+    const num = Number(raw);
+    if (Number.isNaN(num)) return null;
+    return num;
+  })();
+
+  const hourly =
+    durationHours && durationHours > 0 ? tableProfit / durationHours : null;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
@@ -82,23 +110,94 @@ export default async function SessionPage({ params }: SessionPageProps) {
             <span>{new Date(session.date).toLocaleDateString()}</span>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            Active Game · {session.location}
+            Active Game
           </h1>
+          <form
+            action={updateSessionLocation}
+            className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground"
+          >
+            <input type="hidden" name="sessionId" value={sessionId} />
+            <span className="font-medium">Location:</span>
+            <input
+              type="text"
+              name="location"
+              defaultValue={session.location}
+              className="h-7 min-w-[140px] rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
+            />
+            <Button type="submit" size="xs" variant="outline">
+              Save
+            </Button>
+          </form>
           <p className="text-sm text-muted-foreground">
             Track buy-ins, cash-outs, and player results live for this session.
           </p>
         </div>
-        <form action={completeSession}>
-          <input type="hidden" name="sessionId" value={sessionId} />
-          <Button
-            type="submit"
-            size="sm"
-            variant={isCompleted ? "outline" : "default"}
-            disabled={isCompleted}
-          >
-            {isCompleted ? "Completed" : "Complete Session"}
-          </Button>
-        </form>
+        <div className="flex items-center gap-2">
+          <form action={isCompleted ? reopenSession : completeSession}>
+            <input type="hidden" name="sessionId" value={sessionId} />
+            <Button
+              type="submit"
+              size="sm"
+              variant={isCompleted ? "outline" : "default"}
+            >
+              {isCompleted ? "Reopen Session" : "Complete Session"}
+            </Button>
+          </form>
+          {!isCompleted && (
+            <form action={deleteSession}>
+              <input type="hidden" name="sessionId" value={sessionId} />
+              <Button type="submit" size="sm" variant="outline">
+                Delete
+              </Button>
+            </form>
+          )}
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <div className="rounded-lg border border-border bg-card p-3 text-xs">
+          <p className="text-[11px] font-medium text-muted-foreground uppercase">
+            Duration
+          </p>
+          <p className="mt-1 text-sm">
+            {durationHours != null ? `${durationHours.toFixed(1)} h` : "—"}
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-3 text-xs">
+          <p className="text-[11px] font-medium text-muted-foreground uppercase">
+            Total Buy-ins
+          </p>
+          <p className="mt-1 text-sm">
+            ${sessionTotals.totalBuyIns.toFixed(2)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-3 text-xs">
+          <p className="text-[11px] font-medium text-muted-foreground uppercase">
+            Total Cash-outs
+          </p>
+          <p className="mt-1 text-sm">
+            ${sessionTotals.totalCashOuts.toFixed(2)}
+          </p>
+        </div>
+        <div className="rounded-lg border border-border bg-card p-3 text-xs">
+          <p className="text-[11px] font-medium text-muted-foreground uppercase">
+            Table Profit {hourly != null ? "(Hourly)" : ""}
+          </p>
+          <p className="mt-1 text-sm">
+            <span
+              className={
+                tableProfit >= 0 ? "text-emerald-600" : "text-red-600"
+              }
+            >
+              ${tableProfit.toFixed(2)}
+            </span>
+            {hourly != null && (
+              <span className="ml-2 text-[11px] text-muted-foreground">
+                (${hourly.toFixed(2)}/h)
+              </span>
+            )}
+          </p>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 md:flex-row md:items-end md:justify-between">
@@ -150,9 +249,8 @@ export default async function SessionPage({ params }: SessionPageProps) {
               <TableHead className="w-[120px] text-right">Buy-ins</TableHead>
               <TableHead className="w-[140px] text-right">Cash-out</TableHead>
               <TableHead className="w-[120px] text-right">Net</TableHead>
-              <TableHead className="w-[260px] text-right">
-                Quick Actions
-              </TableHead>
+              <TableHead className="w-[260px] text-right">Add Buy-in</TableHead>
+              <TableHead className="w-[80px] text-right">Remove</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -281,6 +379,24 @@ export default async function SessionPage({ params }: SessionPageProps) {
                         </Button>
                       </form>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <form action={removePlayerFromSession}>
+                      <input type="hidden" name="sessionId" value={sessionId} />
+                      <input
+                        type="hidden"
+                        name="playerId"
+                        value={tx.player?.id}
+                      />
+                      <Button
+                        type="submit"
+                        size="sm"
+                        variant="ghost"
+                        disabled={isCompleted}
+                      >
+                        Remove
+                      </Button>
+                    </form>
                   </TableCell>
                 </TableRow>
               ))
