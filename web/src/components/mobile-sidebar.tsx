@@ -35,7 +35,7 @@ export function MobileSidebar() {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />
@@ -44,8 +44,8 @@ export function MobileSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-64 border-r border-border bg-background transition-transform duration-300 ease-in-out md:hidden",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed right-0 top-0 z-50 h-full w-64 border-l border-border bg-background transition-transform duration-300 ease-in-out md:hidden",
+          isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         <div className="flex h-full flex-col">
