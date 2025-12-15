@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import type { Player } from "../../../types";
 import {
   Table,
   TableBody,
@@ -28,7 +29,9 @@ export default async function PlayersPage() {
   const playerMap = new Map<string, PlayerRow>();
   const sessionSet = new Set<string>(); // playerId|sessionId with action
 
-  for (const p of players ?? []) {
+  const typedPlayers = (players ?? []) as Player[];
+
+  for (const p of typedPlayers) {
     playerMap.set(p.id as string, {
       playerId: p.id as string,
       name: p.name as string,
