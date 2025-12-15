@@ -32,19 +32,10 @@ export function MobileSidebar() {
         <Menu className="h-5 w-5" />
       </Button>
 
-      {/* Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed right-0 top-0 z-50 h-full w-full bg-card border-l border-border shadow-lg transition-transform duration-300 ease-in-out md:hidden",
+          "fixed inset-0 z-50 h-full w-full bg-background transition-transform duration-300 ease-in-out md:hidden",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
