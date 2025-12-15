@@ -8,6 +8,8 @@ import type {
   PlayerRecord,
 } from "@/types/records";
 
+export const dynamic = "force-dynamic";
+
 interface PlayerPageProps {
   params: Promise<{ id: string }>;
 }

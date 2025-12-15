@@ -2,10 +2,9 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { BankrollChart } from "@/components/dashboard/bankroll-chart";
 import { LeaderboardTable } from "@/components/dashboard/leaderboard-table";
-import type {
-  SessionRecord,
-  TransactionRecord,
-} from "@/types/records";
+import type { SessionRecord, TransactionRecord } from "@/types/records";
+
+export const dynamic = "force-dynamic";
 
 // Helper to render Postgres `date` (YYYY-MM-DD) without timezone shifting it.
 function formatDbDate(date: string | null | undefined) {

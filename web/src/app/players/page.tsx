@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import type {
-  PlayerRecord,
-  TransactionRecord,
-} from "@/types/records";
+import type { PlayerRecord, TransactionRecord } from "@/types/records";
+
+export const dynamic = "force-dynamic";
 import {
   Table,
   TableBody,

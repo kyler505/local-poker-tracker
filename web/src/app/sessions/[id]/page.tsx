@@ -6,6 +6,8 @@ import type {
   TransactionRecord,
   SessionRecord,
 } from "@/types/records";
+
+export const dynamic = "force-dynamic";
 import {
   addBuyIn,
   addPlayerToSession,

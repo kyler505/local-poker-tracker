@@ -2,6 +2,8 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { createSession } from "./actions";
 import { Button } from "@/components/ui/button";
+
+export const dynamic = "force-dynamic";
 import {
   Table,
   TableBody,
