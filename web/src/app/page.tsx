@@ -2,6 +2,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { BankrollChart } from "@/components/dashboard/bankroll-chart";
 import { LeaderboardTable } from "@/components/dashboard/leaderboard-table";
+import type {
+  SessionRecord,
+  TransactionRecord,
+} from "@/types/records";
 
 // Helper to render Postgres `date` (YYYY-MM-DD) without timezone shifting it.
 function formatDbDate(date: string | null | undefined) {
@@ -21,7 +25,12 @@ export default async function Home() {
       .from("transactions")
       .select(
         "session_id,player_id,buy_in_amount,cash_out_amount,net_profit,player:players(id,name)"
-      ),
+      )
+      .returns<
+        (Omit<TransactionRecord, "id"> & {
+          player: { id: string; name: string } | null;
+        })[]
+      >(),
     supabase
       .from("sessions")
       .select("*")
@@ -30,20 +39,11 @@ export default async function Home() {
     supabase.from("sessions").select("id,date"),
   ]);
 
-  type TxRow = {
-    session_id: string;
-    player_id: string;
-    buy_in_amount: string | null;
-    cash_out_amount: string | null;
-    net_profit: string | null;
+  const transactions = (txRows ?? []) as (TransactionRecord & {
     player: { id: string; name: string } | null;
-  };
-
-  type SessionRow = { id: string; date: string; location?: string; status?: string };
-
-  const transactions = (txRows ?? []) as TxRow[];
-  const recentSessions = (recentSessionRows ?? []) as SessionRow[];
-  const allSessions = (allSessionRows ?? []) as { id: string; date: string }[];
+  })[];
+  const recentSessions = (recentSessionRows ?? []) as SessionRecord[];
+  const allSessions = (allSessionRows ?? []) as Pick<SessionRecord, "id" | "date">[];
 
   const totals = transactions.reduce(
     (acc, t) => {

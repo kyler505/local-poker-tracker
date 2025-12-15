@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import type {
+  PlayerRecord,
+  TransactionRecord,
+} from "@/types/records";
 import {
   Table,
   TableBody,
@@ -25,12 +29,6 @@ export default async function PlayersPage() {
     sessionsPlayed: number;
   };
 
-  type PlayerRecord = {
-    id: string;
-    name: string;
-    nickname: string | null;
-  };
-
   const playerMap = new Map<string, PlayerRow>();
   const sessionSet = new Set<string>(); // playerId|sessionId with action
 
@@ -45,14 +43,6 @@ export default async function PlayersPage() {
       sessionsPlayed: 0,
     });
   }
-
-  type TransactionRecord = {
-    player_id: string;
-    session_id: string;
-    net_profit: string | null;
-    buy_in_amount: string | null;
-    cash_out_amount: string | null;
-  };
 
   const typedTransactions = (transactions ?? []) as TransactionRecord[];
 

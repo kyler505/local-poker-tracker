@@ -2,6 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { BankrollChart } from "@/components/dashboard/bankroll-chart";
+import type {
+  SessionRecord,
+  TransactionRecord,
+  PlayerRecord,
+} from "@/types/records";
 
 interface PlayerPageProps {
   params: Promise<{ id: string }>;
@@ -37,29 +42,23 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     notFound();
   }
 
-  const { id, name, nickname } = playerRow as {
-    id: string;
-    name: string;
-    nickname: string | null;
-  };
-
-  const player = {
-    id,
-    name,
-    nickname,
-  };
+  const player = playerRow as PlayerRecord;
 
   const perSessionMap = new Map<string, number>();
-  for (const tx of txs ?? []) {
-    const sessionId = (tx as { session_id: string }).session_id;
-    const net = Number((tx as { net_profit: string | null }).net_profit ?? 0);
+  const typedTxs = (txs ?? []) as Pick<
+    TransactionRecord,
+    "session_id" | "net_profit"
+  >[];
+  for (const tx of typedTxs) {
+    const sessionId = tx.session_id;
+    const net = Number(tx.net_profit ?? 0);
     perSessionMap.set(sessionId, (perSessionMap.get(sessionId) ?? 0) + net);
   }
 
   const sessionDateMap = new Map<string, string>();
-  for (const s of sessionRows ?? []) {
-    const { id, date } = s as { id: string; date: string };
-    sessionDateMap.set(id, date);
+  const typedSessions = (sessionRows ?? []) as SessionRecord[];
+  for (const s of typedSessions) {
+    sessionDateMap.set(s.id, s.date);
   }
 
   const perSession = Array.from(perSessionMap.entries())

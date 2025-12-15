@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import type {
+  PlayerRecord,
+  TransactionRecord,
+  SessionRecord,
+} from "@/types/records";
 import {
   addBuyIn,
   addPlayerToSession,
@@ -34,35 +39,32 @@ export default async function SessionPage({ params }: SessionPageProps) {
     notFound();
   }
 
-  const session = {
-    id: (sessionRow as { id: string }).id,
-    date: (sessionRow as { date: string }).date,
-    location: (sessionRow as { location: string }).location,
-    status: (sessionRow as { status: string }).status,
-  };
+  const session = sessionRow as SessionRecord;
 
   const { data: playerRows } = await supabase
     .from("players")
     .select("id,name,nickname")
     .order("name", { ascending: true });
 
-  type PlayerRow = { id: string; name: string; nickname: string | null };
-  const players = (playerRows ?? []) as PlayerRow[];
+  const players = (playerRows ?? []) as PlayerRecord[];
 
   const { data: txRows } = await supabase
     .from("transactions")
-    .select("id,buy_in_amount,cash_out_amount,net_profit,player:players(id,name,nickname)")
-    .eq("session_id", sessionId);
+    .select(
+      "id,session_id,player_id,buy_in_amount,cash_out_amount,net_profit,player:players(id,name,nickname)"
+    )
+    .eq("session_id", sessionId)
+    .returns<
+      (TransactionRecord & {
+        id: string;
+        player: { id: string; name: string; nickname: string | null } | null;
+      })[]
+    >();
 
-  type TxRow = {
+  const transactions = (txRows ?? []) as (TransactionRecord & {
     id: string;
-    buy_in_amount: string | null;
-    cash_out_amount: string | null;
-    net_profit: string | null;
     player: { id: string; name: string; nickname: string | null } | null;
-  };
-
-  const transactions = (txRows ?? []) as TxRow[];
+  })[];
 
   const isCompleted = session.status === "completed";
 
