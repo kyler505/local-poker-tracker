@@ -14,19 +14,23 @@ function formatDbDate(date: string | null | undefined) {
 }
 
 type HomeSearchParams = {
-  preset?: string;
-  from?: string;
-  to?: string;
+  [key: string]: string | string[] | undefined;
 };
 
+function normalizeParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
 function parseDateRange(params: HomeSearchParams) {
-  const preset = params.preset ?? "all";
+  const preset = normalizeParam(params.preset) ?? "all";
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const rawTo = normalizeParam(params.to);
   const to =
-    params.to && !Number.isNaN(Date.parse(params.to))
-      ? params.to
+    rawTo && !Number.isNaN(Date.parse(rawTo))
+      ? rawTo
       : today.toISOString().slice(0, 10);
 
   const mkFrom = (days: number) => {
@@ -48,13 +52,15 @@ function parseDateRange(params: HomeSearchParams) {
     return { preset, from, to, label: "Last 90 days" };
   }
 
+  const rawFrom = normalizeParam(params.from);
+
   // Custom range
-  if (params.from && !Number.isNaN(Date.parse(params.from))) {
+  if (rawFrom && !Number.isNaN(Date.parse(rawFrom))) {
     return {
       preset: "custom",
-      from: params.from,
+      from: rawFrom,
       to,
-      label: `From ${params.from} to ${to}`,
+      label: `From ${rawFrom} to ${to}`,
     };
   }
 
@@ -65,10 +71,12 @@ function parseDateRange(params: HomeSearchParams) {
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: HomeSearchParams;
+  searchParams: Promise<HomeSearchParams>;
 }) {
+  const resolvedSearchParams = await searchParams;
+
   const { from, to, label: rangeLabel, preset } = parseDateRange(
-    searchParams ?? {}
+    resolvedSearchParams ?? {}
   );
 
   const [{ data: sessionRows }, { data: txRows }] = await Promise.all([
