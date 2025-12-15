@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
 async function ensureSessionIsActive(sessionId: string) {
@@ -261,6 +262,7 @@ export async function deleteSession(formData: FormData) {
 
   revalidatePath("/sessions");
   revalidatePath("/");
+  redirect("/sessions");
 }
 
 export async function updateSessionLocation(formData: FormData) {
