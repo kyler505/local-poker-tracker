@@ -297,9 +297,6 @@ export default async function Home({
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
           Welcome to Dong's Sun Run
         </h1>
-        <p className="text-xs text-muted-foreground">
-          Showing results: {rangeLabel}
-        </p>
         <div className="mt-2 flex flex-wrap gap-2 text-xs">
           <Link
             href="/"
@@ -362,7 +359,7 @@ export default async function Home({
         </div>
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground uppercase">
-            Top Winner (All Time)
+            Top Winner{preset === "all" ? " (All Time)" : ""}
           </p>
           <p className="mt-2 text-2xl font-semibold">
             {topWinner
