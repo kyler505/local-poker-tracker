@@ -81,11 +81,34 @@ export default function RootLayout({
               </nav>
             </div>
           </header>
-          <main className="flex-1">
+          <main className="flex-1 pb-16 md:pb-0">
             <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-8">
               {children}
             </div>
           </main>
+          {/* Mobile bottom tab bar */}
+          <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 backdrop-blur md:hidden">
+            <div className="mx-auto flex w-full max-w-6xl items-center justify-around px-4 py-2 text-xs">
+              <Link
+                href="/"
+                className="flex flex-col items-center gap-0.5 text-[11px]"
+              >
+                <span className="font-medium">Dashboard</span>
+              </Link>
+              <Link
+                href="/sessions"
+                className="flex flex-col items-center gap-0.5 text-[11px]"
+              >
+                <span className="font-medium">Sessions</span>
+              </Link>
+              <Link
+                href="/players"
+                className="flex flex-col items-center gap-0.5 text-[11px]"
+              >
+                <span className="font-medium">Players</span>
+              </Link>
+            </div>
+          </nav>
         </div>
       </body>
     </html>
