@@ -81,7 +81,8 @@ export default async function PlayersPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4">
+      {/* Desktop table */}
+      <div className="hidden rounded-xl border border-border bg-card p-4 md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -141,6 +142,56 @@ export default async function PlayersPage() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile card list */}
+      <div className="space-y-3 md:hidden">
+        {rows.length ? (
+          rows.map((row) => (
+            <Link
+              key={row.playerId}
+              href={`/players/${row.playerId}`}
+              className="block rounded-xl border border-border bg-card p-3 text-xs"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">{row.name}</p>
+                  {row.nickname ? (
+                    <p className="text-[11px] text-muted-foreground">
+                      ({row.nickname})
+                    </p>
+                  ) : null}
+                </div>
+                <div className="text-right text-[11px] text-muted-foreground">
+                  <p>Sessions</p>
+                  <p className="font-medium text-foreground">
+                    {row.sessionsPlayed}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between text-[11px]">
+                <span className="text-muted-foreground">Total Profit</span>
+                <span
+                  className={
+                    row.totalProfit >= 0
+                      ? "font-semibold text-emerald-600"
+                      : "font-semibold text-red-600"
+                  }
+                >
+                  $
+                  {row.totalProfit.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No players yet. Add players in Supabase or via future admin tools.
+          </p>
+        )}
       </div>
     </div>
   );

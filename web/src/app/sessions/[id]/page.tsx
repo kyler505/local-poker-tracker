@@ -104,7 +104,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Link href="/sessions" className="hover:underline">
@@ -136,8 +136,11 @@ export default async function SessionPage({ params }: SessionPageProps) {
             Track buy-ins, cash-outs, and player results live for this session.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <form action={isCompleted ? reopenSession : completeSession} className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 md:items-end">
+          <form
+            action={isCompleted ? reopenSession : completeSession}
+            className="flex flex-col gap-2 sm:flex-row sm:items-center"
+          >
             <input type="hidden" name="sessionId" value={sessionId} />
             {!isCompleted && (
               <input
@@ -146,7 +149,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
                 step="0.5"
                 min="0"
                 placeholder="Duration (hrs)"
-                className="h-8 w-28 rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
+                className="h-8 w-full rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1 sm:w-28"
               />
             )}
             <Button
@@ -160,7 +163,12 @@ export default async function SessionPage({ params }: SessionPageProps) {
           {!isCompleted && (
             <form action={deleteSession}>
               <input type="hidden" name="sessionId" value={sessionId} />
-              <Button type="submit" size="sm" variant="outline">
+              <Button
+                type="submit"
+                size="sm"
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
                 Delete
               </Button>
             </form>
@@ -255,7 +263,8 @@ export default async function SessionPage({ params }: SessionPageProps) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card">
+      {/* Desktop table */}
+      <div className="hidden rounded-xl border border-border bg-card md:block">
         <Table>
           <TableHeader>
             <TableRow>
@@ -424,6 +433,165 @@ export default async function SessionPage({ params }: SessionPageProps) {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile player cards */}
+      <div className="space-y-3 md:hidden">
+        {transactions?.length ? (
+          transactions.map((tx) => (
+            <div
+              key={tx.id}
+              className="rounded-xl border border-border bg-card p-3 text-xs"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">
+                    {tx.player ? tx.player.name : "Unknown"}
+                  </p>
+                  {tx.player?.nickname ? (
+                    <p className="text-[11px] text-muted-foreground">
+                      ({tx.player.nickname})
+                    </p>
+                  ) : null}
+                </div>
+                <span
+                  className={
+                    Number(tx.net_profit ?? 0) >= 0
+                      ? "text-[11px] font-semibold text-emerald-600"
+                      : "text-[11px] font-semibold text-red-600"
+                  }
+                >
+                  ${Number(tx.net_profit ?? 0).toFixed(2)}
+                </span>
+              </div>
+
+              <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                <span>Buy-ins</span>
+                <span className="font-medium text-foreground">
+                  ${Number(tx.buy_in_amount ?? 0).toFixed(2)}
+                </span>
+              </div>
+
+              <form
+                action={setCashOut}
+                className="mt-2 flex flex-col gap-2 text-[11px]"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Cash-out</span>
+                  <div className="flex items-center gap-2">
+                    <input type="hidden" name="sessionId" value={sessionId} />
+                    <input
+                      type="hidden"
+                      name="playerId"
+                      value={tx.player?.id}
+                    />
+                    <input
+                      type="number"
+                      name="cashOutAmount"
+                      min="0"
+                      step="10"
+                      defaultValue={Number(tx.cash_out_amount ?? 0)}
+                      className="h-8 w-24 rounded-md border border-border bg-background px-1 text-right text-xs outline-none ring-0 focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={isCompleted}
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  size="sm"
+                  variant="outline"
+                  className="w-full"
+                  disabled={isCompleted}
+                >
+                  Update Cash-out
+                </Button>
+              </form>
+
+              <div className="mt-3 flex flex-col gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
+                  <form action={addBuyIn} className="flex-1">
+                    <input
+                      type="hidden"
+                      name="sessionId"
+                      value={sessionId}
+                    />
+                    <input
+                      type="hidden"
+                      name="playerId"
+                      value={tx.player?.id}
+                    />
+                    <input type="hidden" name="amount" value="25" />
+                    <Button
+                      type="submit"
+                      size="sm"
+                      variant="outline"
+                      className="w-full"
+                      disabled={isCompleted}
+                    >
+                      +$25
+                    </Button>
+                  </form>
+
+                  <form
+                    action={addBuyIn}
+                    className="flex flex-1 items-center gap-2"
+                  >
+                    <input
+                      type="hidden"
+                      name="sessionId"
+                      value={sessionId}
+                    />
+                    <input
+                      type="hidden"
+                      name="playerId"
+                      value={tx.player?.id}
+                    />
+                    <input
+                      type="number"
+                      name="amount"
+                      min="1"
+                      step="1"
+                      placeholder="Custom"
+                      className="h-8 w-20 flex-1 rounded-md border border-border bg-background px-1 text-right text-xs outline-none ring-0 focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={isCompleted}
+                    />
+                    <Button
+                      type="submit"
+                      size="sm"
+                      variant="outline"
+                      disabled={isCompleted}
+                    >
+                      Add
+                    </Button>
+                  </form>
+                </div>
+
+                <form action={removePlayerFromSession}>
+                  <input type="hidden" name="sessionId" value={sessionId} />
+                  <input
+                    type="hidden"
+                    name="playerId"
+                    value={tx.player?.id}
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    variant="ghost"
+                    className="w-full"
+                    disabled={isCompleted}
+                  >
+                    Remove from Session
+                  </Button>
+                </form>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            No players in this session yet. Use &quot;Add Player&quot; to start
+            tracking.
+          </p>
+        )}
       </div>
     </div>
   );
