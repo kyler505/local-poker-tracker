@@ -44,7 +44,7 @@ export function MobileSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed right-0 top-0 z-50 h-full w-64 border-l border-border bg-background transition-transform duration-300 ease-in-out md:hidden",
+          "fixed right-0 top-0 z-50 h-full w-full bg-background transition-transform duration-300 ease-in-out md:hidden",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
