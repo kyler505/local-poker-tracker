@@ -133,8 +133,18 @@ export default async function SessionPage({ params }: SessionPageProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <form action={isCompleted ? reopenSession : completeSession}>
+          <form action={isCompleted ? reopenSession : completeSession} className="flex items-center gap-2">
             <input type="hidden" name="sessionId" value={sessionId} />
+            {!isCompleted && (
+              <input
+                type="number"
+                name="durationHours"
+                step="0.5"
+                min="0"
+                placeholder="Duration (hrs)"
+                className="h-8 w-28 rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
+              />
+            )}
             <Button
               type="submit"
               size="sm"

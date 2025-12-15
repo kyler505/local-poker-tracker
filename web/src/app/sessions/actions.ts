@@ -46,20 +46,9 @@ export async function createSession(formData: FormData) {
     throw new Error("Date and location are required.");
   }
 
-  const rawDuration = formData.get("durationHours")?.toString().trim();
-  let duration_hours: string | null = null;
-
-  if (rawDuration) {
-    const num = Number(rawDuration);
-    if (Number.isNaN(num) || num < 0) {
-      throw new Error("Duration must be a non-negative number of hours.");
-    }
-    duration_hours = num.toString();
-  }
-
   const { error } = await supabase
     .from("sessions")
-    .insert({ date, location, status: "active", duration_hours });
+    .insert({ date, location, status: "active" });
 
   if (error) throw error;
 
@@ -167,9 +156,19 @@ export async function setCashOut(formData: FormData) {
 
 export async function completeSession(formData: FormData) {
   const sessionId = formData.get("sessionId")?.toString();
+  const rawDuration = formData.get("durationHours")?.toString().trim();
 
   if (!sessionId) {
     throw new Error("Session id is required.");
+  }
+
+  let duration_hours: string | null = null;
+  if (rawDuration) {
+    const num = Number(rawDuration);
+    if (Number.isNaN(num) || num < 0) {
+      throw new Error("Duration must be a non-negative number of hours.");
+    }
+    duration_hours = num.toString();
   }
 
   const totals = await getSessionTotals(sessionId);
@@ -182,7 +181,7 @@ export async function completeSession(formData: FormData) {
 
   const { error } = await supabase
     .from("sessions")
-    .update({ status: "completed" })
+    .update({ status: "completed", duration_hours })
     .eq("id", sessionId);
 
   if (error) throw error;

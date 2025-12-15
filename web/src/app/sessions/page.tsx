@@ -49,14 +49,6 @@ export default async function SessionsPage() {
             className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
             required
           />
-          <input
-            type="number"
-            name="durationHours"
-            step="0.5"
-            min="0"
-            placeholder="Duration (hrs)"
-            className="h-9 w-32 rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
-          />
           <Button type="submit" size="sm" className="whitespace-nowrap">
             New Session
           </Button>
