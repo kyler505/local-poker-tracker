@@ -125,7 +125,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
             <input
               type="text"
               name="location"
-              defaultValue={session.location}
+              defaultValue={session.location ?? ""}
               className="h-7 min-w-[140px] rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
             />
             <Button type="submit" size="xs" variant="outline">
