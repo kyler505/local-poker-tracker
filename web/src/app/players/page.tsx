@@ -46,9 +46,19 @@ export default async function PlayersPage() {
     });
   }
 
-  for (const tx of transactions ?? []) {
-    const playerId = tx.player_id as string;
-    const sessionId = tx.session_id as string;
+  type TransactionRecord = {
+    player_id: string;
+    session_id: string;
+    net_profit: string | null;
+    buy_in_amount: string | null;
+    cash_out_amount: string | null;
+  };
+
+  const typedTransactions = (transactions ?? []) as TransactionRecord[];
+
+  for (const tx of typedTransactions) {
+    const playerId = tx.player_id;
+    const sessionId = tx.session_id;
     const net = Number(tx.net_profit ?? 0);
     const buyIn = Number(tx.buy_in_amount ?? 0);
     const cashOut = Number(tx.cash_out_amount ?? 0);
