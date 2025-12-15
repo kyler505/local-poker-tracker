@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { MobileSidebar } from "@/components/mobile-sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,58 +58,15 @@ export default function RootLayout({
                     Players
                   </Link>
                 </nav>
+                <MobileSidebar />
               </div>
-              {/* Mobile navigation */}
-              <nav className="mt-3 flex gap-2 overflow-x-auto text-xs font-medium md:hidden">
-                <Link
-                  href="/"
-                  className="flex-shrink-0 rounded-full border border-border px-3 py-1 transition-colors hover:bg-accent hover:text-accent-foreground"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/sessions"
-                  className="flex-shrink-0 rounded-full border border-border px-3 py-1 transition-colors hover:bg-accent hover:text-accent-foreground"
-                >
-                  Sessions
-                </Link>
-                <Link
-                  href="/players"
-                  className="flex-shrink-0 rounded-full border border-border px-3 py-1 transition-colors hover:bg-accent hover:text-accent-foreground"
-                >
-                  Players
-                </Link>
-              </nav>
             </div>
           </header>
-          <main className="flex-1 pb-16 md:pb-0">
+          <main className="flex-1">
             <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-8">
               {children}
             </div>
           </main>
-          {/* Mobile bottom tab bar */}
-          <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 backdrop-blur md:hidden">
-            <div className="mx-auto flex w-full max-w-6xl items-center justify-around px-4 py-2 text-xs">
-              <Link
-                href="/"
-                className="flex flex-col items-center gap-0.5 text-[11px]"
-              >
-                <span className="font-medium">Dashboard</span>
-              </Link>
-              <Link
-                href="/sessions"
-                className="flex flex-col items-center gap-0.5 text-[11px]"
-              >
-                <span className="font-medium">Sessions</span>
-              </Link>
-              <Link
-                href="/players"
-                className="flex flex-col items-center gap-0.5 text-[11px]"
-              >
-                <span className="font-medium">Players</span>
-              </Link>
-            </div>
-          </nav>
         </div>
       </body>
     </html>
