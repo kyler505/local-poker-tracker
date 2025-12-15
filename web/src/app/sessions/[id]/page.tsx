@@ -32,6 +32,10 @@ interface SessionPageProps {
   params: Promise<{ id: string }>;
 }
 
+type SessionWithDuration = SessionRecord & {
+  duration_hours?: string | null;
+};
+
 export default async function SessionPage({ params }: SessionPageProps) {
   const { id: sessionId } = await params;
 
@@ -45,7 +49,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
     notFound();
   }
 
-  const session = sessionRow as SessionRecord;
+  const session = sessionRow as SessionWithDuration;
 
   const { data: playerRows } = await supabase
     .from("players")
@@ -88,7 +92,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
   const tableProfit = sessionTotals.totalCashOuts - sessionTotals.totalBuyIns;
 
   const durationHours = (() => {
-    const raw = (session as SessionRecord).duration_hours as string | null;
+    const raw = session.duration_hours ?? null;
     if (!raw) return null;
     const num = Number(raw);
     if (Number.isNaN(num)) return null;

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { BankrollChart } from "@/components/dashboard/bankroll-chart";
+import { DashboardPanels } from "@/components/dashboard/dashboard-panels";
 import { LeaderboardTable } from "@/components/dashboard/leaderboard-table";
-import { PlayerComparisonChart } from "@/components/dashboard/player-comparison-chart";
 import type { SessionRecord, TransactionRecord } from "@/types/records";
 
 export const dynamic = "force-dynamic";
@@ -380,15 +379,12 @@ export default async function Home({
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-4 md:col-span-2">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-medium text-muted-foreground uppercase">
-              Money on Table per Session
-            </p>
-          </div>
-          <div className="h-64">
-            <BankrollChart data={moneyOnTableSeries} />
-          </div>
+        <div className="md:col-span-2">
+          <DashboardPanels
+            moneyOnTableSeries={moneyOnTableSeries}
+            topPlayerSeries={topPlayerSeries}
+            topN={TOP_N}
+          />
         </div>
 
         <div className="rounded-xl border border-border bg-card p-4">
@@ -433,21 +429,7 @@ export default async function Home({
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <p className="text-xs font-medium text-muted-foreground uppercase">
-            Player Comparison (Cumulative Profit)
-          </p>
-          <p className="text-[11px] text-muted-foreground">
-            Top {TOP_N} players in current range
-          </p>
-        </div>
-        <div className="h-64">
-          <PlayerComparisonChart players={topPlayerSeries} />
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4 mt-4">
         <div className="mb-2 flex items-center justify-between">
           <p className="text-xs font-medium text-muted-foreground uppercase">
             Leaderboard
