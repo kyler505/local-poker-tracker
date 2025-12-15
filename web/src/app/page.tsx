@@ -156,12 +156,8 @@ export default async function Home() {
     <div className="space-y-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-          Poker Bankroll & Session Tracker
+          Welcome to Dong's Sun Run
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Track live sessions, player results, and bankroll performance over
-          time.
-        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

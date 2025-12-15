@@ -33,7 +33,7 @@ export default function RootLayout({
             <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 md:px-6">
               <Link href="/" className="flex items-center gap-2">
                 <span className="text-lg font-semibold tracking-tight">
-                  Poker Tracker
+                  Dong Sun Run Tracker
                 </span>
               </Link>
               <nav className="hidden items-center gap-4 text-sm font-medium md:flex">
