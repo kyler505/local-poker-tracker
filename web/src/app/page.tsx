@@ -112,9 +112,9 @@ export default async function Home({
     player: { id: string; name: string } | null;
   })[]).filter((t) => filteredSessionIds.has(t.session_id));
 
-  const recentSessions = [...filteredSessions]
-    .sort((a, b) => (a.date < b.date ? 1 : -1))
-    .slice(0, 5);
+  const recentSessions = [...filteredSessions].sort((a, b) =>
+    a.date < b.date ? 1 : -1
+  );
 
   const totalSessions = filteredSessions.length;
 
@@ -396,7 +396,7 @@ export default async function Home({
               View all
             </Link>
           </div>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 text-sm max-h-64 overflow-y-auto pr-1">
             {recentSessions.length ? (
               recentSessions.map((s) => (
                 <Link
