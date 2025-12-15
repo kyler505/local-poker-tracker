@@ -52,6 +52,11 @@ type CsvRow = {
 };
 
 type PlayerIdRow = { id: string };
+type SessionIdRow = { id: string };
+type PlayerInsert = Database["public"]["Tables"]["players"]["Insert"];
+type SessionInsert = Database["public"]["Tables"]["sessions"]["Insert"];
+type TransactionUpsert =
+  Database["public"]["Tables"]["transactions"]["Insert"];
 
 async function getOrCreatePlayer(name: string, nickname?: string | null) {
   const { data, error } = await supabase
@@ -68,7 +73,7 @@ async function getOrCreatePlayer(name: string, nickname?: string | null) {
 
   const { data: inserted, error: insertError } = await supabase
     .from("players")
-    .insert({
+    .insert<PlayerInsert>({
       name,
       nickname: nickname ?? null,
     })
@@ -81,8 +86,6 @@ async function getOrCreatePlayer(name: string, nickname?: string | null) {
 
   return inserted.id;
 }
-
-type SessionIdRow = { id: string };
 
 async function getOrCreateSession(date: string, location: string) {
   const { data, error } = await supabase
@@ -100,7 +103,7 @@ async function getOrCreateSession(date: string, location: string) {
 
   const { data: inserted, error: insertError } = await supabase
     .from("sessions")
-    .insert({
+    .insert<SessionInsert>({
       date,
       location,
       status: "completed",
@@ -123,7 +126,7 @@ async function upsertTransaction(
 ) {
   const { error } = await supabase
     .from("transactions")
-    .upsert(
+    .upsert<TransactionUpsert>(
       {
         session_id: sessionId,
         player_id: playerId,
