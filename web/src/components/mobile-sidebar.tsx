@@ -33,13 +33,13 @@ export function MobileSidebar() {
       </Button>
 
       {/* Sidebar */}
-      <aside
-        className={cn(
-          "fixed inset-0 z-50 h-full w-full bg-background transition-transform duration-300 ease-in-out md:hidden",
-          isOpen ? "translate-x-0" : "translate-x-full"
-        )}
-      >
-        <div className="flex h-full flex-col">
+      {isOpen && (
+        <aside
+          className={cn(
+            "fixed inset-0 z-[100] h-screen w-screen bg-background transition-transform duration-300 ease-in-out md:hidden"
+          )}
+        >
+          <div className="flex h-full w-full flex-col bg-background">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-border p-4">
             <span className="text-base font-semibold tracking-tight">
@@ -73,8 +73,9 @@ export function MobileSidebar() {
               </Link>
             ))}
           </nav>
-        </div>
-      </aside>
+          </div>
+        </aside>
+      )}
     </>
   );
 }
