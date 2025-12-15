@@ -51,12 +51,14 @@ type CsvRow = {
   cash_out: string;
 };
 
+type PlayerIdRow = { id: string };
+
 async function getOrCreatePlayer(name: string, nickname?: string | null) {
   const { data, error } = await supabase
     .from("players")
     .select("id")
     .eq("name", name)
-    .maybeSingle();
+    .maybeSingle<PlayerIdRow>();
 
   if (error && error.code !== "PGRST116") {
     throw error;
@@ -71,7 +73,7 @@ async function getOrCreatePlayer(name: string, nickname?: string | null) {
       nickname: nickname ?? null,
     })
     .select("id")
-    .single();
+    .single<PlayerIdRow>();
 
   if (insertError || !inserted) {
     throw insertError ?? new Error("Failed to insert player");
@@ -80,13 +82,15 @@ async function getOrCreatePlayer(name: string, nickname?: string | null) {
   return inserted.id;
 }
 
+type SessionIdRow = { id: string };
+
 async function getOrCreateSession(date: string, location: string) {
   const { data, error } = await supabase
     .from("sessions")
     .select("id")
     .eq("date", date)
     .eq("location", location)
-    .maybeSingle();
+    .maybeSingle<SessionIdRow>();
 
   if (error && error.code !== "PGRST116") {
     throw error;
@@ -102,7 +106,7 @@ async function getOrCreateSession(date: string, location: string) {
       status: "completed",
     })
     .select("id")
-    .single();
+    .single<SessionIdRow>();
 
   if (insertError || !inserted) {
     throw insertError ?? new Error("Failed to insert session");
