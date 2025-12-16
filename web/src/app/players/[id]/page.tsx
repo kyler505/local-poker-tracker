@@ -88,7 +88,11 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  // Build cumulative profit graph - includes ALL sessions
+  // Find the first session where the player participated
+  const firstParticipationDate =
+    perSessionAsc.length > 0 ? perSessionAsc[0].date : null;
+
+  // Build cumulative profit graph - includes ALL sessions from first participation onward
   // For sessions where player participated, use actual net profit
   // For sessions where player didn't participate, use 0 net (flat line) and no dot
   const allSessionsSorted = Array.from(sessionDateMap.entries())
@@ -101,7 +105,14 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-  const profitOverTime = allSessionsSorted.reduce<
+  // Filter to only include sessions from first participation date onward
+  const sessionsFromFirstParticipation = firstParticipationDate
+    ? allSessionsSorted.filter(
+        (s) => new Date(s.date).getTime() >= new Date(firstParticipationDate).getTime()
+      )
+    : allSessionsSorted;
+
+  const profitOverTime = sessionsFromFirstParticipation.reduce<
     { date: string; cumulative: number; hasParticipation: boolean }[]
   >((acc, curr) => {
     const prev = acc[acc.length - 1]?.cumulative ?? 0;
