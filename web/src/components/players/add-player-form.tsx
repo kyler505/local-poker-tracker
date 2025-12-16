@@ -23,7 +23,7 @@ export function AddPlayerForm() {
       action={formAction}
       className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3 text-sm md:flex-row md:items-center"
     >
-      <div className="flex flex-1 flex-col gap-1">
+      <div className="flex flex-1 flex-col gap-1 md:max-w-xs">
         <label className="text-[11px] font-medium text-muted-foreground">
           Name *
         </label>
@@ -32,17 +32,6 @@ export function AddPlayerForm() {
           name="name"
           required
           placeholder="Player name"
-          className="h-9 w-full rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
-        />
-      </div>
-      <div className="flex flex-1 flex-col gap-1">
-        <label className="text-[11px] font-medium text-muted-foreground">
-          Nickname (optional)
-        </label>
-        <input
-          type="text"
-          name="nickname"
-          placeholder="Nickname"
           className="h-9 w-full rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
         />
       </div>

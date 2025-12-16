@@ -13,8 +13,6 @@ export async function createPlayer(
   formData: FormData
 ): Promise<ActionState> {
   const name = formData.get("name")?.toString().trim() ?? "";
-  const nicknameRaw = formData.get("nickname")?.toString().trim() ?? "";
-  const nickname = nicknameRaw.length ? nicknameRaw : null;
 
   if (!name) {
     return { error: "Name is required.", success: false };
@@ -22,7 +20,7 @@ export async function createPlayer(
 
   const { error } = await supabase
     .from("players")
-    .insert({ name, nickname })
+    .insert({ name })
     .single();
 
   if (error) {
