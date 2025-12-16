@@ -271,7 +271,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
               <TableHead className="w-[140px] text-right">Cash-out</TableHead>
               <TableHead className="w-[120px] text-right">Net</TableHead>
               <TableHead className="w-[260px] text-right">Add Buy-in</TableHead>
-              <TableHead className="w-[80px] text-right">Remove</TableHead>
+              <TableHead className="w-[80px] text-right">Remove Player</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -315,7 +315,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
                         type="number"
                         name="cashOutAmount"
                         min="0"
-                        step="10"
+                        step="1"
                         defaultValue={Number(tx.cash_out_amount ?? 0)}
                         className="h-8 w-20 rounded-md border border-border bg-background px-1 text-right text-xs outline-none ring-0 focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={isCompleted}
@@ -487,7 +487,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
                       type="number"
                       name="cashOutAmount"
                       min="0"
-                      step="10"
+                      step="1"
                       defaultValue={Number(tx.cash_out_amount ?? 0)}
                       className="h-8 w-24 rounded-md border border-border bg-background px-1 text-right text-xs outline-none ring-0 focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
                       disabled={isCompleted}
