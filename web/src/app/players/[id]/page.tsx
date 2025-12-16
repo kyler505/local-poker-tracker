@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { BankrollChart } from "@/components/dashboard/bankroll-chart";
 import { formatCSTDate, parseCSTDate } from "@/lib/dateUtils";
+import { formatMoney } from "@/lib/money";
 import type {
   SessionRecord,
   TransactionRecord,
@@ -167,11 +168,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 totalProfit >= 0 ? "text-emerald-600" : "text-red-600"
               }
             >
-              $
-              {totalProfit.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {formatMoney(totalProfit)}
             </span>
           </p>
         </div>
@@ -181,10 +178,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </p>
           <p className="mt-2 text-2xl font-semibold">
             {typeof bestWin === "number"
-              ? `$${bestWin.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}`
+              ? formatMoney(bestWin)
               : "—"}
           </p>
         </div>
@@ -194,10 +188,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </p>
           <p className="mt-2 text-2xl font-semibold">
             {typeof worstLoss === "number"
-              ? `$${worstLoss.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}`
+              ? formatMoney(worstLoss)
               : "—"}
           </p>
         </div>
@@ -207,10 +198,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           </p>
           <p className="mt-2 text-2xl font-semibold">
             {typeof avgProfit === "number"
-              ? `$${avgProfit.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}`
+              ? formatMoney(avgProfit)
               : "—"}
           </p>
         </div>
@@ -244,11 +232,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                     s.net >= 0 ? "text-emerald-600" : "text-red-600"
                   }
                 >
-                  $
-                  {s.net.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatMoney(s.net)}
                 </span>
               </div>
             ))

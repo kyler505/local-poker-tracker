@@ -1,5 +1,4 @@
-// Minimal record types used by the Next.js app when reading from Supabase.
-// These are deliberately small and UI-focused to keep Render builds simple.
+import type { SessionStatus } from "./database";
 
 export type PlayerRecord = {
   id: string;
@@ -9,9 +8,10 @@ export type PlayerRecord = {
 
 export type SessionRecord = {
   id: string;
-  date: string;
-  location?: string | null;
-  status?: string | null;
+  date: string; // YYYY-MM-DD
+  location: string | null;
+  status: SessionStatus;
+  duration_hours?: string | null;
 };
 
 export type TransactionRecord = {

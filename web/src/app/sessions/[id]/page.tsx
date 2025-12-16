@@ -8,7 +8,6 @@ import type {
   SessionRecord,
 } from "@/types/records";
 
-export const dynamic = "force-dynamic";
 import {
   addBuyIn,
   addPlayerToSession,
@@ -20,6 +19,7 @@ import {
   updateSessionLocation,
 } from "../actions";
 import { Button } from "@/components/ui/button";
+import { RealtimeListener } from "@/components/realtime/realtime-listener";
 import {
   Table,
   TableBody,
@@ -28,6 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+export const dynamic = "force-dynamic";
 
 interface SessionPageProps {
   params: Promise<{ id: string }>;
