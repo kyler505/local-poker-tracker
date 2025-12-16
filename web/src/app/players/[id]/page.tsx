@@ -63,13 +63,16 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     sessionDateMap.set(s.id, s.date);
   }
 
+  // Only include sessions where player actually participated (has transactions)
+  // This already filters out sessions the player wasn't at since perSessionMap
+  // only contains sessions with transactions for this player
   const perSessionAsc = Array.from(perSessionMap.entries())
     .map(([sessionId, net]) => ({
       sessionId,
       date: sessionDateMap.get(sessionId) ?? "",
       net,
     }))
-    .filter((d) => d.date)
+    .filter((d) => d.date) // Only sessions with valid dates
     .sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
@@ -79,13 +82,15 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
+  // Build cumulative profit graph - includes sessions with $0 net (flat lines)
+  // but excludes sessions where player had no transactions (already filtered by perSessionMap)
   const profitOverTime = perSessionAsc.reduce<
     { date: string; cumulative: number }[]
   >((acc, curr) => {
     const prev = acc[acc.length - 1]?.cumulative ?? 0;
     acc.push({
       date: curr.date,
-      cumulative: prev + curr.net,
+      cumulative: prev + curr.net, // $0 net sessions will show as flat line
     });
     return acc;
   }, []);
