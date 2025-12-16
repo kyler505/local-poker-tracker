@@ -430,7 +430,7 @@ export default async function Home({
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <div className="flex flex-col rounded-xl border border-border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground uppercase">
             Total Sessions
@@ -506,7 +506,7 @@ export default async function Home({
             </p>
             <Link
               href="/sessions"
-              className="text-xs text-primary hover:underline"
+              className="text-xs text-primary hover:underline active:opacity-70 transition-opacity"
             >
               View all
             </Link>
@@ -517,7 +517,7 @@ export default async function Home({
                 <Link
                   key={s.id}
                   href={`/sessions/${s.id}`}
-                  className="flex items-center justify-between rounded-md border border-border/60 bg-muted/40 px-2 py-1.5 text-xs hover:bg-muted"
+                  className="flex items-center justify-between rounded-md border border-border/60 bg-muted/40 px-2 py-1.5 text-xs hover:bg-muted active:scale-[0.98] active:bg-muted/80 transition-transform"
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">

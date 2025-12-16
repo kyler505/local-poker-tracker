@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useFormState } from "react-dom";
+import { useEffect, useRef, useActionState } from "react";
 import { createPlayer } from "@/app/players/actions";
 import { Button } from "@/components/ui/button";
 
 const initialState = { error: null as string | null, success: false };
 
 export function AddPlayerForm() {
-  const [state, formAction] = useFormState(createPlayer, initialState);
+  const [state, formAction] = useActionState(createPlayer, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {

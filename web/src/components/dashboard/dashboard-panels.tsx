@@ -40,8 +40,10 @@ export function DashboardPanels({
   const [enlargedChart, setEnlargedChart] = useState<PanelKey | null>(null);
 
   const tabClass = (key: PanelKey) =>
-    `px-2 py-1 rounded-full border text-xs ${
-      active === key ? "bg-primary text-primary-foreground" : ""
+    `px-2 py-1 rounded-full border text-xs transition-all active:scale-95 ${
+      active === key
+        ? "bg-primary text-primary-foreground"
+        : "active:bg-accent"
     }`;
 
   return (

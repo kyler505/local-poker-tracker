@@ -88,7 +88,7 @@ export function LeaderboardTable({ rows, activePlayerIds }: LeaderboardTableProp
           <TableHead className="w-[40px]">#</TableHead>
           <TableHead>Player</TableHead>
           <TableHead
-            className="w-[120px] cursor-pointer text-right"
+            className="w-[120px] cursor-pointer text-right active:bg-accent/50 transition-colors"
             onClick={() => onHeaderClick("sessionsPlayed")}
           >
             <span className="inline-flex items-center gap-1">
@@ -96,7 +96,7 @@ export function LeaderboardTable({ rows, activePlayerIds }: LeaderboardTableProp
             </span>
           </TableHead>
           <TableHead
-            className="w-[140px] cursor-pointer text-right"
+            className="w-[140px] cursor-pointer text-right active:bg-accent/50 transition-colors"
             onClick={() => onHeaderClick("totalProfit")}
           >
             <span className="inline-flex items-center gap-1">
@@ -107,7 +107,7 @@ export function LeaderboardTable({ rows, activePlayerIds }: LeaderboardTableProp
             </span>
           </TableHead>
           <TableHead
-            className="w-[120px] cursor-pointer text-right"
+            className="w-[120px] cursor-pointer text-right active:bg-accent/50 transition-colors"
             onClick={() => onHeaderClick("winRate")}
           >
             <span className="inline-flex items-center gap-1">
