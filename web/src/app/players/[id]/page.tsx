@@ -63,7 +63,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     sessionDateMap.set(s.id, s.date);
   }
 
-  const perSession = Array.from(perSessionMap.entries())
+  const perSessionAsc = Array.from(perSessionMap.entries())
     .map(([sessionId, net]) => ({
       sessionId,
       date: sessionDateMap.get(sessionId) ?? "",
@@ -74,7 +74,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-  const profitOverTime = perSession.reduce<
+  // For display, show most recent first
+  const perSessionDesc = [...perSessionAsc].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  const profitOverTime = perSessionAsc.reduce<
     { date: string; cumulative: number }[]
   >((acc, curr) => {
     const prev = acc[acc.length - 1]?.cumulative ?? 0;
@@ -85,17 +90,17 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     return acc;
   }, []);
 
-  const totalProfit = perSession.reduce((sum, s) => sum + s.net, 0);
+  const totalProfit = perSessionAsc.reduce((sum, s) => sum + s.net, 0);
   const bestWin =
-    perSession.length > 0
-      ? Math.max(...perSession.map((s) => s.net))
+    perSessionAsc.length > 0
+      ? Math.max(...perSessionAsc.map((s) => s.net))
       : undefined;
   const worstLoss =
-    perSession.length > 0
-      ? Math.min(...perSession.map((s) => s.net))
+    perSessionAsc.length > 0
+      ? Math.min(...perSessionAsc.map((s) => s.net))
       : undefined;
   const avgProfit =
-    perSession.length > 0 ? totalProfit / perSession.length : undefined;
+    perSessionAsc.length > 0 ? totalProfit / perSessionAsc.length : undefined;
 
   return (
     <div className="space-y-6">
@@ -196,8 +201,8 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
           Session Results
         </p>
         <div className="space-y-2 text-sm">
-          {perSession.length ? (
-            perSession.map((s) => (
+          {perSessionDesc.length ? (
+            perSessionDesc.map((s) => (
               <div
                 key={s.sessionId}
                 className="flex items-center justify-between rounded-md border border-border/60 bg-muted/40 px-2 py-1.5 text-xs"
