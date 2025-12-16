@@ -12,6 +12,7 @@ import {
 type BankrollPoint = {
   date: string;
   cumulative: number;
+  hasParticipation?: boolean; // If false/undefined, don't show dot for this point
 };
 
 interface BankrollChartProps {
@@ -56,8 +57,20 @@ export function BankrollChart({ data }: BankrollChartProps) {
             dataKey="cumulative"
             stroke="#16a34a"
             strokeWidth={2.5}
-            dot={{ r: 3 }}
-            activeDot={{ r: 4 }}
+            dot={(props: any) => {
+              // Only show dot if hasParticipation is true (or undefined for backward compatibility)
+              if (props.payload?.hasParticipation === false) {
+                return null;
+              }
+              return <circle cx={props.cx} cy={props.cy} r={3} fill="#16a34a" />;
+            }}
+            activeDot={(props: any) => {
+              // Only show active dot if hasParticipation is true
+              if (props.payload?.hasParticipation === false) {
+                return null;
+              }
+              return <circle cx={props.cx} cy={props.cy} r={4} fill="#16a34a" />;
+            }}
           />
         </LineChart>
       </ResponsiveContainer>

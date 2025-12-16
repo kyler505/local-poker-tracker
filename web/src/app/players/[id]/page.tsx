@@ -35,7 +35,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
       .maybeSingle(),
     supabase
       .from("transactions")
-      .select("session_id,net_profit")
+      .select("session_id,net_profit,buy_in_amount,cash_out_amount")
       .eq("player_id", playerId),
     supabase.from("sessions").select("id,date"),
   ]);
@@ -49,10 +49,16 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
   const perSessionMap = new Map<string, number>();
   const typedTxs = (txs ?? []) as Pick<
     TransactionRecord,
-    "session_id" | "net_profit"
+    "session_id" | "net_profit" | "buy_in_amount" | "cash_out_amount"
   >[];
   for (const tx of typedTxs) {
     const sessionId = tx.session_id;
+    const buyIn = Number(tx.buy_in_amount ?? 0);
+    const cashOut = Number(tx.cash_out_amount ?? 0);
+    // Only include sessions where player actually participated (had money on the table)
+    if (buyIn === 0 && cashOut === 0) {
+      continue; // Skip sessions with no actual participation
+    }
     const net = Number(tx.net_profit ?? 0);
     perSessionMap.set(sessionId, (perSessionMap.get(sessionId) ?? 0) + net);
   }
@@ -82,15 +88,29 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  // Build cumulative profit graph - includes sessions with $0 net (flat lines)
-  // but excludes sessions where player had no transactions (already filtered by perSessionMap)
-  const profitOverTime = perSessionAsc.reduce<
-    { date: string; cumulative: number }[]
+  // Build cumulative profit graph - includes ALL sessions
+  // For sessions where player participated, use actual net profit
+  // For sessions where player didn't participate, use 0 net (flat line) and no dot
+  const allSessionsSorted = Array.from(sessionDateMap.entries())
+    .map(([sessionId, date]) => ({
+      sessionId,
+      date,
+    }))
+    .filter((d) => d.date)
+    .sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+  const profitOverTime = allSessionsSorted.reduce<
+    { date: string; cumulative: number; hasParticipation: boolean }[]
   >((acc, curr) => {
     const prev = acc[acc.length - 1]?.cumulative ?? 0;
+    const net = perSessionMap.get(curr.sessionId) ?? 0; // 0 if player didn't participate
+    const hasParticipation = perSessionMap.has(curr.sessionId);
     acc.push({
       date: curr.date,
-      cumulative: prev + curr.net, // $0 net sessions will show as flat line
+      cumulative: prev + net, // For non-participation sessions, net is 0, so cumulative stays same
+      hasParticipation,
     });
     return acc;
   }, []);
