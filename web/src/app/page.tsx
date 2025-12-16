@@ -218,6 +218,47 @@ export default async function Home({
       ? [...leaderboard].sort((a, b) => b.totalProfit - a.totalProfit)[0]
       : undefined;
 
+  // Top earner from most recent completed session
+  const completedSessions = filteredSessions.filter(
+    (s) => s.status === "completed"
+  );
+  const mostRecentCompletedSession =
+    completedSessions.length > 0
+      ? [...completedSessions].sort((a, b) => (a.date < b.date ? 1 : -1))[0]
+      : undefined;
+
+  let lastSessionWinner:
+    | { name: string; profit: number }
+    | undefined = undefined;
+
+  if (mostRecentCompletedSession) {
+    const sessionTransactions = transactions.filter(
+      (t) => t.session_id === mostRecentCompletedSession.id
+    );
+
+    // Group by player and sum net profit
+    const playerProfitMap = new Map<string, { name: string; profit: number }>();
+    for (const tx of sessionTransactions) {
+      const playerId = tx.player_id;
+      const net = Number(tx.net_profit ?? 0);
+      const playerName = tx.player?.name ?? "Unknown";
+
+      if (!playerProfitMap.has(playerId)) {
+        playerProfitMap.set(playerId, { name: playerName, profit: 0 });
+      }
+      const entry = playerProfitMap.get(playerId)!;
+      entry.profit += net;
+    }
+
+    // Find player with highest profit
+    if (playerProfitMap.size > 0) {
+      const entries = Array.from(playerProfitMap.values());
+      lastSessionWinner = entries.reduce((max, curr) =>
+        curr.profit > max.profit ? curr : max
+      );
+    }
+  }
+
   // Cumulative total money put on the table over time (sum of buy-ins)
   const sessionBuyins = transactions.reduce((map, tx) => {
     const sessionId = tx.session_id;
@@ -389,7 +430,7 @@ export default async function Home({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-4">
         <div className="flex flex-col rounded-xl border border-border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground uppercase">
             Total Sessions
@@ -420,6 +461,22 @@ export default async function Home({
           <p className="mt-2 text-2xl font-semibold">
             {topWinner
               ? `${topWinner.name} ($${topWinner.totalProfit.toLocaleString(
+                  "en-US",
+                  {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }
+                )})`
+              : "—"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs font-medium text-muted-foreground uppercase">
+            Last Session Winner
+          </p>
+          <p className="mt-2 text-2xl font-semibold">
+            {lastSessionWinner
+              ? `${lastSessionWinner.name} ($${lastSessionWinner.profit.toLocaleString(
                   "en-US",
                   {
                     minimumFractionDigits: 2,
