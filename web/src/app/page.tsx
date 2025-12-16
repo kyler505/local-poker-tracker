@@ -76,7 +76,11 @@ export default async function Home({
     resolvedSearchParams ?? {}
   );
 
-  const [{ data: sessionRows }, { data: txRows }] = await Promise.all([
+  const [
+    { data: sessionRows },
+    { data: txRows },
+    { data: activeSessions },
+  ] = await Promise.all([
     supabase
       .from("sessions")
       .select("*")
@@ -91,7 +95,22 @@ export default async function Home({
           player: { id: string; name: string } | null;
         })[]
       >(),
+    supabase
+      .from("sessions")
+      .select("id,date")
+      .eq("status", "active")
+      .order("date", { ascending: false })
+      .limit(1),
   ]);
+
+  // Query transactions for active sessions
+  const activeSessionIds = (activeSessions ?? []).map((s: SessionRecord) => s.id);
+  const { data: activeSessionTransactions } = activeSessionIds.length > 0
+    ? await supabase
+        .from("transactions")
+        .select("player_id")
+        .in("session_id", activeSessionIds)
+    : { data: null };
 
   const allSessions = (sessionRows ?? []) as SessionRecord[];
 
@@ -212,6 +231,16 @@ export default async function Home({
     sessionDateMap.set(s.id, s.date);
   }
 
+  // Get active session date if exists
+  const activeSessionDate = activeSessions && activeSessions.length > 0
+    ? (activeSessions[0] as SessionRecord).date
+    : null;
+
+  // Get set of active player IDs
+  const activePlayerIds = new Set<string>(
+    (activeSessionTransactions ?? []).map((t: { player_id: string }) => t.player_id)
+  );
+
   // Money on the table per session (sum of buy-ins for that date)
   const moneyOnTableSeries = Array.from(sessionBuyins.entries())
     .map(([sessionId, amount]) => ({
@@ -250,10 +279,32 @@ export default async function Home({
   type PlayerSeries = {
     playerId: string;
     name: string;
-    series: { date: string; cumulative: number }[];
+    series: { date: string; cumulative: number; hasParticipation: boolean }[];
   };
 
+  // Build a map of player participation per session
+  const playerParticipationMap = new Map<string, Set<string>>(); // playerId -> Set of sessionIds where they participated
+  for (const tx of transactions) {
+    const playerId = tx.player_id;
+    const sessionId = tx.session_id;
+    const buyIn = Number(tx.buy_in_amount ?? 0);
+    const cashOut = Number(tx.cash_out_amount ?? 0);
+
+    // Only mark as participation if player had actual action
+    if (buyIn !== 0 || cashOut !== 0) {
+      if (!playerParticipationMap.has(playerId)) {
+        playerParticipationMap.set(playerId, new Set());
+      }
+      playerParticipationMap.get(playerId)!.add(sessionId);
+    }
+  }
+
   const playerSeries: PlayerSeries[] = [];
+
+  // Get all unique dates from filtered sessions, sorted
+  const allSessionDates = Array.from(
+    new Set(filteredSessions.map((s) => s.date))
+  ).sort((a, b) => (a < b ? -1 : 1));
 
   for (const [playerId, entries] of playerSessionMap.entries()) {
     const bySession = new Map<string, { date: string; net: number }>();
@@ -264,14 +315,21 @@ export default async function Home({
       bySession.set(e.sessionId, prev);
     }
 
-    const perSession = Array.from(bySession.values()).sort((a, b) =>
-      a.date < b.date ? -1 : 1
-    );
-
+    // Build series including all sessions, with participation flags
+    const participationSet = playerParticipationMap.get(playerId) ?? new Set();
     let cumulative = 0;
-    const series = perSession.map((s) => {
-      cumulative += s.net;
-      return { date: s.date, cumulative };
+    const series = allSessionDates.map((date) => {
+      // Find session ID for this date
+      const sessionForDate = filteredSessions.find((s) => s.date === date);
+      if (!sessionForDate) {
+        return { date, cumulative, hasParticipation: false };
+      }
+
+      const sessionNet = bySession.get(sessionForDate.id)?.net ?? 0;
+      cumulative += sessionNet;
+      const hasParticipation = participationSet.has(sessionForDate.id);
+
+      return { date, cumulative, hasParticipation };
     });
 
     if (!series.length) continue;
@@ -379,6 +437,8 @@ export default async function Home({
             moneyOnTableSeries={moneyOnTableSeries}
             topPlayerSeries={topPlayerSeries}
             topN={TOP_N}
+            activeSessionDate={activeSessionDate}
+            activePlayerIds={activePlayerIds}
           />
         </div>
 
@@ -445,6 +505,7 @@ export default async function Home({
             winningSessions: row.winningSessions,
             winRate: row.winRate,
           }))}
+          activePlayerIds={activePlayerIds}
         />
       </div>
     </div>

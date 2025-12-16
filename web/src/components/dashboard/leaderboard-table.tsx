@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 
 export type LeaderboardRow = {
@@ -25,6 +26,7 @@ type SortDirection = "asc" | "desc";
 
 interface LeaderboardTableProps {
   rows: LeaderboardRow[];
+  activePlayerIds?: Set<string>;
 }
 
 function sortRows(
@@ -59,7 +61,7 @@ function sortRows(
   });
 }
 
-export function LeaderboardTable({ rows }: LeaderboardTableProps) {
+export function LeaderboardTable({ rows, activePlayerIds }: LeaderboardTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>("totalProfit");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
@@ -123,12 +125,19 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
             <TableRow key={row.playerId}>
               <TableCell className="text-xs">{idx + 1}</TableCell>
               <TableCell className="text-sm">
-                <Link
-                  href={`/players/${row.playerId}`}
-                  className="hover:underline"
-                >
-                  {row.name}
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/players/${row.playerId}`}
+                    className="hover:underline"
+                  >
+                    {row.name}
+                  </Link>
+                  {activePlayerIds?.has(row.playerId) && (
+                    <Badge variant="default" className="text-[10px] px-1.5 py-0">
+                      Live
+                    </Badge>
+                  )}
+                </div>
               </TableCell>
               <TableCell className="text-right text-sm">
                 {row.sessionsPlayed.toLocaleString("en-US")}

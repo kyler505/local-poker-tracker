@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AddPlayerForm } from "@/components/players/add-player-form";
 
 export default async function PlayersPage() {
   const [{ data: players }, { data: transactions }] = await Promise.all([
@@ -72,13 +73,17 @@ export default async function PlayersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-          Players
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Browse all players and drill into their individual performance.
-        </p>
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+            Players
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Browse all players and drill into their individual performance.
+          </p>
+        </div>
+
+        <AddPlayerForm />
       </div>
 
       {/* Desktop table */}
@@ -135,8 +140,7 @@ export default async function PlayersPage() {
             ) : (
               <TableRow>
                 <TableCell colSpan={3} className="py-6 text-center text-sm">
-                  No players yet. Add players in Supabase or via future admin
-                  tools.
+                  No players yet. Add the first player to get started.
                 </TableCell>
               </TableRow>
             )}

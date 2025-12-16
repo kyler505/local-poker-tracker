@@ -3,6 +3,7 @@
 import {
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -17,9 +18,10 @@ type BankrollPoint = {
 
 interface BankrollChartProps {
   data: BankrollPoint[];
+  activeSessionDate?: string;
 }
 
-export function BankrollChart({ data }: BankrollChartProps) {
+export function BankrollChart({ data, activeSessionDate }: BankrollChartProps) {
   if (!data.length) {
     return (
       <div className="flex h-[220px] items-center justify-center text-xs text-muted-foreground">
@@ -28,8 +30,11 @@ export function BankrollChart({ data }: BankrollChartProps) {
     );
   }
 
+  // Check if data contains any negative values
+  const hasNegativeValues = data.some((point) => point.cumulative < 0);
+
   return (
-    <div className="h-[220px] w-full text-foreground">
+    <div className="h-full w-full text-foreground">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <XAxis
@@ -42,6 +47,14 @@ export function BankrollChart({ data }: BankrollChartProps) {
             tick={{ fontSize: 10 }}
             domain={["auto", "auto"]}
           />
+          {hasNegativeValues && (
+            <ReferenceLine
+              y={0}
+              stroke="#888"
+              strokeDasharray="5 5"
+              strokeWidth={1}
+            />
+          )}
           <Tooltip
             formatter={(value) =>
               typeof value === "number"
@@ -62,12 +75,33 @@ export function BankrollChart({ data }: BankrollChartProps) {
               if (props.payload?.hasParticipation === false) {
                 return null;
               }
+              const isActiveSession = activeSessionDate && props.payload?.date === activeSessionDate;
+              if (isActiveSession) {
+                // Special marker for active session - pulsing effect with larger radius
+                return (
+                  <g>
+                    <circle cx={props.cx} cy={props.cy} r={6} fill="#16a34a" opacity={0.3} />
+                    <circle cx={props.cx} cy={props.cy} r={4} fill="#16a34a" opacity={0.6} />
+                    <circle cx={props.cx} cy={props.cy} r={3} fill="#16a34a" />
+                  </g>
+                );
+              }
               return <circle cx={props.cx} cy={props.cy} r={3} fill="#16a34a" />;
             }}
             activeDot={(props: any) => {
               // Only show active dot if hasParticipation is true
               if (props.payload?.hasParticipation === false) {
                 return null;
+              }
+              const isActiveSession = activeSessionDate && props.payload?.date === activeSessionDate;
+              if (isActiveSession) {
+                return (
+                  <g>
+                    <circle cx={props.cx} cy={props.cy} r={7} fill="#16a34a" opacity={0.3} />
+                    <circle cx={props.cx} cy={props.cy} r={5} fill="#16a34a" opacity={0.6} />
+                    <circle cx={props.cx} cy={props.cy} r={4} fill="#16a34a" />
+                  </g>
+                );
               }
               return <circle cx={props.cx} cy={props.cy} r={4} fill="#16a34a" />;
             }}
