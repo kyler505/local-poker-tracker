@@ -2,6 +2,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { createSession, deleteSession } from "./actions";
 import { Button } from "@/components/ui/button";
+import { getCurrentCSTDate, formatCSTDate } from "@/lib/dateUtils";
 
 export const dynamic = "force-dynamic";
 import {
@@ -39,7 +40,7 @@ export default async function SessionsPage() {
             type="date"
             name="date"
             className="h-9 rounded-md border border-border bg-background px-2 text-xs outline-none ring-0 focus-visible:ring-1"
-            defaultValue={new Date().toISOString().slice(0, 10)}
+            defaultValue={getCurrentCSTDate()}
             required
           />
           <input
@@ -76,7 +77,7 @@ export default async function SessionsPage() {
               sessions.map((session) => (
                 <TableRow key={session.id}>
                   <TableCell className="text-sm">
-                    {new Date(session.date).toLocaleDateString()}
+                    {formatCSTDate(session.date)}
                   </TableCell>
                   <TableCell className="text-sm">{session.location}</TableCell>
                   <TableCell className="text-sm">
@@ -142,7 +143,7 @@ export default async function SessionsPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium">
-                      {new Date(session.date).toLocaleDateString()}
+                      {formatCSTDate(session.date)}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
                       {session.location}

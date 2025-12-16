@@ -2,15 +2,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { DashboardPanels } from "@/components/dashboard/dashboard-panels";
 import { LeaderboardTable } from "@/components/dashboard/leaderboard-table";
+import { formatCSTDate, getCurrentCSTDate, parseCSTDate } from "@/lib/dateUtils";
 import type { SessionRecord, TransactionRecord } from "@/types/records";
 
 export const dynamic = "force-dynamic";
-
-// Helper to render Postgres `date` (YYYY-MM-DD) without timezone shifting it.
-function formatDbDate(date: string | null | undefined) {
-  if (!date) return "";
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US");
-}
 
 type HomeSearchParams = {
   [key: string]: string | string[] | undefined;
@@ -23,19 +18,22 @@ function normalizeParam(value: string | string[] | undefined): string | undefine
 
 function parseDateRange(params: HomeSearchParams) {
   const preset = normalizeParam(params.preset) ?? "all";
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Use CST date for "today"
+  const todayCST = getCurrentCSTDate();
 
   const rawTo = normalizeParam(params.to);
   const to =
     rawTo && !Number.isNaN(Date.parse(rawTo))
       ? rawTo
-      : today.toISOString().slice(0, 10);
+      : todayCST;
 
   const mkFrom = (days: number) => {
-    const d = new Date(to);
-    d.setDate(d.getDate() - (days - 1));
-    return d.toISOString().slice(0, 10);
+    const d = parseCSTDate(to);
+    d.setUTCDate(d.getUTCDate() - (days - 1));
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   if (preset === "7d") {
@@ -222,7 +220,7 @@ export default async function Home({
     }))
     .filter((d) => d.date)
     .sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => parseCSTDate(a.date).getTime() - parseCSTDate(b.date).getTime()
     );
 
   // Per-player cumulative profit series for comparison chart
@@ -406,7 +404,7 @@ export default async function Home({
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">
-                      {formatDbDate(s.date as string)}
+                      {formatCSTDate(s.date as string)}
                     </span>
                     <span className="text-[11px] text-muted-foreground">
                       {s.location}

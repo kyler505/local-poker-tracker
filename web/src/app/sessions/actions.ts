@@ -38,6 +38,11 @@ async function getSessionTotals(sessionId: string) {
   );
 }
 
+/**
+ * Creates a new session.
+ * Note: The date should be in YYYY-MM-DD format and represent the date in Central Time (CST/CDT).
+ * The date input in the form defaults to the current date in CST via getCurrentCSTDate().
+ */
 export async function createSession(formData: FormData) {
   const date = formData.get("date")?.toString();
   const location = formData.get("location")?.toString().trim();

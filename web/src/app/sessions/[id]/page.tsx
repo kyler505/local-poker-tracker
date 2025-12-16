@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { formatCSTDate } from "@/lib/dateUtils";
 import type {
   PlayerRecord,
   TransactionRecord,
@@ -111,7 +112,7 @@ export default async function SessionPage({ params }: SessionPageProps) {
               Sessions
             </Link>
             <span>/</span>
-            <span>{new Date(session.date).toLocaleDateString()}</span>
+            <span>{formatCSTDate(session.date)}</span>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
             Active Game

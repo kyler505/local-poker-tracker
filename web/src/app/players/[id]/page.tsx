@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { BankrollChart } from "@/components/dashboard/bankroll-chart";
+import { formatCSTDate, parseCSTDate } from "@/lib/dateUtils";
 import type {
   SessionRecord,
   TransactionRecord,
@@ -12,12 +13,6 @@ export const dynamic = "force-dynamic";
 
 interface PlayerPageProps {
   params: Promise<{ id: string }>;
-}
-
-// Helper to render Postgres `date` (YYYY-MM-DD) without timezone shifting it.
-function formatDbDate(date: string | null | undefined) {
-  if (!date) return "";
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US");
 }
 
 export default async function PlayerPage({ params }: PlayerPageProps) {
@@ -80,12 +75,12 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     }))
     .filter((d) => d.date) // Only sessions with valid dates
     .sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => parseCSTDate(a.date).getTime() - parseCSTDate(b.date).getTime()
     );
 
   // For display, show most recent first
   const perSessionDesc = [...perSessionAsc].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => parseCSTDate(b.date).getTime() - parseCSTDate(a.date).getTime()
   );
 
   // Find the first session where the player participated
@@ -102,13 +97,13 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
     }))
     .filter((d) => d.date)
     .sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => parseCSTDate(a.date).getTime() - parseCSTDate(b.date).getTime()
     );
 
   // Filter to only include sessions from first participation date onward
   const sessionsFromFirstParticipation = firstParticipationDate
     ? allSessionsSorted.filter(
-        (s) => new Date(s.date).getTime() >= new Date(firstParticipationDate).getTime()
+        (s) => parseCSTDate(s.date).getTime() >= parseCSTDate(firstParticipationDate).getTime()
       )
     : allSessionsSorted;
 
@@ -243,7 +238,7 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
                 key={s.sessionId}
                 className="flex items-center justify-between rounded-md border border-border/60 bg-muted/40 px-2 py-1.5 text-xs"
               >
-                <span>{formatDbDate(s.date)}</span>
+                <span>{formatCSTDate(s.date)}</span>
                 <span
                   className={
                     s.net >= 0 ? "text-emerald-600" : "text-red-600"
