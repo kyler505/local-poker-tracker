@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { parseCSTDate } from "@/lib/dateUtils";
 
 type BankrollPoint = {
   date: string;
@@ -33,13 +34,23 @@ export function BankrollChart({ data, activeSessionDate }: BankrollChartProps) {
   // Check if data contains any negative values
   const hasNegativeValues = data.some((point) => point.cumulative < 0);
 
+  const formatChartDate = (value: string) => {
+    const d = parseCSTDate(value);
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Chicago",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(d);
+  };
+
   return (
     <div className="h-full w-full text-foreground">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <XAxis
             dataKey="date"
-            tickFormatter={(value) => new Date(value).toLocaleDateString()}
+            tickFormatter={formatChartDate}
             tick={{ fontSize: 10 }}
           />
           <YAxis
@@ -61,9 +72,7 @@ export function BankrollChart({ data, activeSessionDate }: BankrollChartProps) {
                 ? [`$${value.toFixed(2)}`, "value"]
                 : [String(value ?? ""), "value"]
             }
-            labelFormatter={(value: string) =>
-              new Date(value).toLocaleDateString()
-            }
+            labelFormatter={(value: string) => formatChartDate(value)}
           />
           <Line
             type="monotone"
@@ -75,13 +84,26 @@ export function BankrollChart({ data, activeSessionDate }: BankrollChartProps) {
               if (props.payload?.hasParticipation === false) {
                 return null;
               }
-              const isActiveSession = activeSessionDate && props.payload?.date === activeSessionDate;
+              const isActiveSession =
+                activeSessionDate && props.payload?.date === activeSessionDate;
               if (isActiveSession) {
                 // Special marker for active session - pulsing effect with larger radius
                 return (
                   <g>
-                    <circle cx={props.cx} cy={props.cy} r={6} fill="#16a34a" opacity={0.3} />
-                    <circle cx={props.cx} cy={props.cy} r={4} fill="#16a34a" opacity={0.6} />
+                    <circle
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={6}
+                      fill="#16a34a"
+                      opacity={0.3}
+                    />
+                    <circle
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={4}
+                      fill="#16a34a"
+                      opacity={0.6}
+                    />
                     <circle cx={props.cx} cy={props.cy} r={3} fill="#16a34a" />
                   </g>
                 );
@@ -93,12 +115,25 @@ export function BankrollChart({ data, activeSessionDate }: BankrollChartProps) {
               if (props.payload?.hasParticipation === false) {
                 return null;
               }
-              const isActiveSession = activeSessionDate && props.payload?.date === activeSessionDate;
+              const isActiveSession =
+                activeSessionDate && props.payload?.date === activeSessionDate;
               if (isActiveSession) {
                 return (
                   <g>
-                    <circle cx={props.cx} cy={props.cy} r={7} fill="#16a34a" opacity={0.3} />
-                    <circle cx={props.cx} cy={props.cy} r={5} fill="#16a34a" opacity={0.6} />
+                    <circle
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={7}
+                      fill="#16a34a"
+                      opacity={0.3}
+                    />
+                    <circle
+                      cx={props.cx}
+                      cy={props.cy}
+                      r={5}
+                      fill="#16a34a"
+                      opacity={0.6}
+                    />
                     <circle cx={props.cx} cy={props.cy} r={4} fill="#16a34a" />
                   </g>
                 );
