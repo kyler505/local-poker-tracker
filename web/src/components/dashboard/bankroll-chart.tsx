@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { parseCSTDate } from "@/lib/dateUtils";
+import { formatCSTDate } from "@/lib/dateUtils";
 
 type BankrollPoint = {
   date: string;
@@ -35,13 +35,8 @@ export function BankrollChart({ data, activeSessionDate }: BankrollChartProps) {
   const hasNegativeValues = data.some((point) => point.cumulative < 0);
 
   const formatChartDate = (value: string) => {
-    const d = parseCSTDate(value);
-    return new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/Chicago",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(d);
+    // value is already "YYYY-MM-DD"; this matches how sessions list is formatted
+    return formatCSTDate(value);
   };
 
   return (
