@@ -16,7 +16,7 @@ type MoneyPoint = { date: string; cumulative: number };
 type PlayerSeries = {
   playerId: string;
   name: string;
-  series: { date: string; cumulative: number }[];
+  series: { date: string; cumulative: number; hasParticipation: boolean }[];
 };
 
 interface DashboardPanelsProps {
