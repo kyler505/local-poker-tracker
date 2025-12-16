@@ -259,11 +259,6 @@ export default async function SessionPage({ params }: SessionPageProps) {
             Add to Session
           </Button>
         </form>
-        <div className="text-xs text-muted-foreground">
-          {isCompleted
-            ? "This session is completed and cannot be modified."
-            : "Quick buy-ins and cash-outs can be used below per player."}
-        </div>
       </div>
 
       {/* Desktop table */}

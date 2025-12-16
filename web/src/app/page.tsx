@@ -104,7 +104,7 @@ export default async function Home({
   ]);
 
   // Query transactions for active sessions
-  const activeSessionIds = (activeSessions ?? []).map((s: SessionRecord) => s.id);
+  const activeSessionIds = (activeSessions ?? []).map((s) => s.id);
   const { data: activeSessionTransactions } = activeSessionIds.length > 0
     ? await supabase
         .from("transactions")
@@ -390,7 +390,7 @@ export default async function Home({
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex flex-col rounded-xl border border-border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground uppercase">
             Total Sessions
           </p>
@@ -400,7 +400,7 @@ export default async function Home({
               : "—"}
           </p>
         </div>
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex flex-col rounded-xl border border-border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground uppercase">
             Total Money Circulated
           </p>
@@ -442,7 +442,7 @@ export default async function Home({
           />
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex h-[320px] flex-col rounded-xl border border-border bg-card p-4">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-medium text-muted-foreground uppercase">
               Recent Sessions
@@ -454,7 +454,7 @@ export default async function Home({
               View all
             </Link>
           </div>
-          <div className="space-y-2 text-sm max-h-64 overflow-y-auto pr-1">
+          <div className="mt-2 flex-1 space-y-2 overflow-y-auto pr-1 text-sm">
             {recentSessions.length ? (
               recentSessions.map((s) => (
                 <Link
